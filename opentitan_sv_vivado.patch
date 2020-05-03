@@ -1,0 +1,52 @@
+diff --git a/hw/ip/hmac/rtl/hmac.sv b/hw/ip/hmac/rtl/hmac.sv
+index a83ac4b5..33620231 100644
+--- a/hw/ip/hmac/rtl/hmac.sv
++++ b/hw/ip/hmac/rtl/hmac.sv
+@@ -239,8 +239,15 @@ module hmac
+   assign fifo_full   = ~fifo_wready;
+   assign fifo_empty  = ~fifo_rvalid;
+   assign fifo_wvalid = (hmac_fifo_wsel && fifo_wready) ? hmac_fifo_wvalid : reg_fifo_wvalid;
+-  assign fifo_wdata  = (hmac_fifo_wsel) ? '{data: digest[hmac_fifo_wdata_sel], mask: '1}
+-                                       : reg_fifo_wentry;
++  // assign fifo_wdata  = (hmac_fifo_wsel) ? '{data: digest[hmac_fifo_wdata_sel], mask: '1}
++  //                                      : reg_fifo_wentry;
++    assign fifo_wdata = (hmac_fifo_wsel ? sv2v_struct_C4A23(digest[hmac_fifo_wdata_sel * 32+:32], 1'sb1) : reg_fifo_wentry);
++
++	function automatic [(32 + ((WordByte - 1) >= 0 ? WordByte : 2 - WordByte)) - 1:0] sv2v_struct_C4A23;
++		input reg [31:0] data;
++		input reg [WordByte - 1:0] mask;
++		sv2v_struct_C4A23 = {data, mask};
++	endfunction
+ 
+   prim_fifo_sync #(
+     .Width ($bits(sha_fifo_t)),
+diff --git a/hw/ip/hmac/rtl/hmac_core.sv b/hw/ip/hmac/rtl/hmac_core.sv
+index 7a2beb39..cd9dda55 100644
+--- a/hw/ip/hmac/rtl/hmac_core.sv
++++ b/hw/ip/hmac/rtl/hmac_core.sv
+@@ -111,12 +111,19 @@ module hmac_core import hmac_pkg::*; (
+   assign fifo_rready  = (hmac_en) ? (st_q == StMsg) & sha_rready : sha_rready ;
+   // sha_rvalid is controlled by State Machine below.
+   assign sha_rvalid = (!hmac_en) ? fifo_rvalid : hmac_sha_rvalid ;
+-  assign sha_rdata =
+-    (!hmac_en)             ? fifo_rdata                                               :
+-    (sel_rdata == SelIPad) ? '{data: i_pad[(BlockSize-1)-32*pad_index-:32], mask: '1} :
+-    (sel_rdata == SelOPad) ? '{data: o_pad[(BlockSize-1)-32*pad_index-:32], mask: '1} :
+-    (sel_rdata == SelFifo) ? fifo_rdata                                               :
+-    '{default: '0};
++  // assign sha_rdata =
++  //   (!hmac_en)             ? fifo_rdata                                               :
++  //   (sel_rdata == SelIPad) ? '{data: i_pad[(BlockSize-1)-32*pad_index-:32], mask: '1} :
++  //   (sel_rdata == SelOPad) ? '{data: o_pad[(BlockSize-1)-32*pad_index-:32], mask: '1} :
++  //   (sel_rdata == SelFifo) ? fifo_rdata                                               :
++  //   '{default: '0};
++
++	function automatic [(32 + ((WordByte - 1) >= 0 ? WordByte : 2 - WordByte)) - 1:0] sv2v_struct_C4A23;
++		input reg [31:0] data;
++		input reg [WordByte - 1:0] mask;
++		sv2v_struct_C4A23 = {data, mask};
++	endfunction
++	assign sha_rdata = (!hmac_en ? fifo_rdata : (sel_rdata == SelIPad ? sv2v_struct_C4A23(i_pad[(BlockSize - 1) - (32 * pad_index)-:32], 1'sb1) : (sel_rdata == SelOPad ? sv2v_struct_C4A23(o_pad[(BlockSize - 1) - (32 * pad_index)-:32], 1'sb1) : (sel_rdata == SelFifo ? fifo_rdata : sv2v_struct_C4A23(1'sb0, 1'sb0)))));
+ 
+   assign sha_message_length = (!hmac_en)                 ? message_length             :
+                               (sel_msglen == SelIPadMsg) ? message_length + BlockSize :

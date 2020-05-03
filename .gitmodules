@@ -1,0 +1,4 @@
+[submodule "opentitan"]
+	path = opentitan
+	url = https://github.com/lowrisc/opentitan
+    ignore = dirty

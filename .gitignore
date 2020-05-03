@@ -1,0 +1,21 @@
+opentitan.v
+opentitan_patched.v
+*.mem
+*.elf
+*.bin
+*.lst
+*.o
+
+*.out
+*.vcd
+
+.DS_Store
+
+venv/
+
+# Vivado garbage
+*.wdb
+*.jou
+*.log
+*.pb
+xsim.dir/
