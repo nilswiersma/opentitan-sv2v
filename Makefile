@@ -22,7 +22,17 @@ clean:
 		opentitan.v \
 		opentitan_patched.v \
 		opentitan_tb.out \
-		opentitan.vcd
+		opentitan_tb_synth.out \
+		opentitan.vcd \
+		opentitan_synth.vcd
+
+.PHONY: clean2
+clean2:
+	rm -f \
+		firmware/*.o firmware/*.bin firmware/*.lst firmware/*.elf \
+		*.mem \
+		opentitan_tb.out \
+		opentitan_tb_synth.out 
 
 #######################################
 # firmware
@@ -53,6 +63,7 @@ opentitan.v: $(OT_SRCS)
 
 opentitan_patched.v: opentitan.v
 	patch opentitan.v -o opentitan_patched.v < opentitan.patch
+	patch opentitan_patched.v < blackbox_xilinx.patch
 
 #######################################
 # yosys
@@ -67,6 +78,11 @@ logicloop: opentitan_patched.v bootrom.mem
 		-p 'scc -select' \
 		-p 'show -colors 1 -prefix ./output-split -format svg'
 
+opentitan_synth.v: opentitan_patched.v
+	yosys -S opentitan_patched.v \
+		-p "dfflibmap -liberty cmos_cells.lib" \
+		-p "abc -liberty cmos_cells.lib" \
+		-o opentitan_synth.v
 
 #######################################
 # simulation
@@ -74,8 +90,20 @@ logicloop: opentitan_patched.v bootrom.mem
 opentitan_tb.out: opentitan_tb.v opentitan_patched.v
 	iverilog -v -o $@ $^
 
+opentitan_tb_synth.out: opentitan_tb_synth.v opentitan_synth.v
+	iverilog -v -o $@ $^ cmos_cells.v opentitan_blackbox.v
+
 sim: opentitan_tb.out bootrom.mem
 	./opentitan_tb.out && gtkwave opentitan.vcd
+
+sim2: opentitan_tb.out bootrom.mem
+	./opentitan_tb.out
+
+synthsim: opentitan_tb_synth.out bootrom.mem
+	./opentitan_tb_synth.out && gtkwave opentitan_synth.vcd
+
+synthsim2: opentitan_tb_synth.out bootrom.mem
+	./opentitan_tb_synth.out
 
 .PHONY: vivado-sim-sv vivado-sim-v
 vivado-sim-sv: bootrom.mem
