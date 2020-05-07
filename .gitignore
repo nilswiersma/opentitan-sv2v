@@ -1,5 +1,6 @@
 opentitan.v
 opentitan_patched.v
+opentitan_synth.v
 *.mem
 *.elf
 *.bin
@@ -8,6 +9,7 @@ opentitan_patched.v
 
 *.out
 *.vcd
+*.gtkw
 
 .DS_Store
 
