@@ -79,10 +79,13 @@ logicloop: opentitan_patched.v bootrom.mem
 		-p 'show -colors 1 -prefix ./output-split -format svg'
 
 opentitan_synth.v: opentitan_patched.v
-	yosys -S opentitan_patched.v \
-		-p "dfflibmap -liberty cmos_cells.lib" \
-		-p "abc -liberty cmos_cells.lib" \
-		-o opentitan_synth.v
+	yosys \
+		-p 'read_verilog opentitan_patched.v' \
+		-p 'synth -top top_earlgrey' \
+		-p 'dfflibmap -liberty cmos_cells.lib' \
+		-p 'abc -liberty cmos_cells.lib' \
+		-p 'clean' \
+		-p 'write_verilog opentitan_synth.v'
 
 #######################################
 # simulation
