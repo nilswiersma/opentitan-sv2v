@@ -1,0 +1,480 @@
+--- opentitan_patched.v	2020-05-07 17:32:23.495568600 +0200
++++ opentitan_patched_bb.v	2020-05-07 17:30:08.090571900 +0200
+@@ -15688,6 +15688,8 @@
+ 	assign hw2reg_intr_state_d_o = new_event | reg2hw_intr_state_q_i;
+ 	assign intr_o = reg2hw_intr_state_q_i & reg2hw_intr_enable_q_i;
+ endmodule
++
++(* blackbox *)
+ module prim_secded_39_32_enc (
+ 	in,
+ 	out
+@@ -15734,6 +15736,8 @@
+ 	assign out[37] = ((((((((((((in[1] ^ in[2]) ^ in[4]) ^ in[6]) ^ in[10]) ^ in[13]) ^ in[14]) ^ in[16]) ^ in[18]) ^ in[19]) ^ in[20]) ^ in[21]) ^ in[22]) ^ in[26];
+ 	assign out[38] = (((((((((((((in[1] ^ in[5]) ^ in[7]) ^ in[8]) ^ in[9]) ^ in[10]) ^ in[11]) ^ in[17]) ^ in[18]) ^ in[20]) ^ in[21]) ^ in[24]) ^ in[25]) ^ in[28]) ^ in[31];
+ endmodule
++
++(* blackbox *)
+ module prim_secded_39_32_dec (
+ 	in,
+ 	d_o,
+@@ -15788,6 +15792,8 @@
+ 	assign err_o[0] = single_error;
+ 	assign err_o[1] = ~single_error & |syndrome_o;
+ endmodule
++
++(* blackbox *)
+ module prim_ram_2p_adv (
+ 	clk_i,
+ 	rst_ni,
+@@ -16033,6 +16039,8 @@
+ 		end
+ 	endgenerate
+ endmodule
++
++(* blackbox *)
+ module prim_ram_2p_async_adv (
+ 	clk_a_i,
+ 	clk_b_i,
+@@ -16293,6 +16301,8 @@
+ 		end
+ 	endgenerate
+ endmodule
++
++(* blackbox *)
+ module prim_ram_2p (
+ 	clk_a_i,
+ 	clk_b_i,
+@@ -16346,27 +16356,29 @@
+ 				.b_rdata_o(b_rdata_o)
+ 			);
+ 		end
+-		else if (Impl == ImplXilinx) begin : gen_mem_xilinx
+-			prim_xilinx_ram_2p #(
+-				.Width(Width),
+-				.Depth(Depth)
+-			) u_impl_xilinx(
+-				.clk_a_i(clk_a_i),
+-				.clk_b_i(clk_b_i),
+-				.a_req_i(a_req_i),
+-				.a_write_i(a_write_i),
+-				.a_addr_i(a_addr_i),
+-				.a_wdata_i(a_wdata_i),
+-				.a_rdata_o(a_rdata_o),
+-				.b_req_i(b_req_i),
+-				.b_write_i(b_write_i),
+-				.b_addr_i(b_addr_i),
+-				.b_wdata_i(b_wdata_i),
+-				.b_rdata_o(b_rdata_o)
+-			);
+-		end
++		// else if (Impl == ImplXilinx) begin : gen_mem_xilinx
++		// 	prim_xilinx_ram_2p #(
++		// 		.Width(Width),
++		// 		.Depth(Depth)
++		// 	) u_impl_xilinx(
++		// 		.clk_a_i(clk_a_i),
++		// 		.clk_b_i(clk_b_i),
++		// 		.a_req_i(a_req_i),
++		// 		.a_write_i(a_write_i),
++		// 		.a_addr_i(a_addr_i),
++		// 		.a_wdata_i(a_wdata_i),
++		// 		.a_rdata_o(a_rdata_o),
++		// 		.b_req_i(b_req_i),
++		// 		.b_write_i(b_write_i),
++		// 		.b_addr_i(b_addr_i),
++		// 		.b_wdata_i(b_wdata_i),
++		// 		.b_rdata_o(b_rdata_o)
++		// 	);
++		// end
+ 	endgenerate
+ endmodule
++
++(* blackbox *)
+ module prim_generic_ram_2p (
+ 	clk_a_i,
+ 	clk_b_i,
+@@ -16410,49 +16422,49 @@
+ 			b_rdata_o <= mem[b_addr_i];
+ 		end
+ endmodule
+-module prim_xilinx_ram_2p (
+-	clk_a_i,
+-	clk_b_i,
+-	a_req_i,
+-	a_write_i,
+-	a_addr_i,
+-	a_wdata_i,
+-	a_rdata_o,
+-	b_req_i,
+-	b_write_i,
+-	b_addr_i,
+-	b_wdata_i,
+-	b_rdata_o
+-);
+-	parameter signed [31:0] Width = 32;
+-	parameter signed [31:0] Depth = 128;
+-	localparam signed [31:0] Aw = $clog2(Depth);
+-	input clk_a_i;
+-	input clk_b_i;
+-	input a_req_i;
+-	input a_write_i;
+-	input [Aw - 1:0] a_addr_i;
+-	input [Width - 1:0] a_wdata_i;
+-	output reg [Width - 1:0] a_rdata_o;
+-	input b_req_i;
+-	input b_write_i;
+-	input [Aw - 1:0] b_addr_i;
+-	input [Width - 1:0] b_wdata_i;
+-	output reg [Width - 1:0] b_rdata_o;
+-	reg [Width - 1:0] storage [0:Depth - 1];
+-	always @(posedge clk_a_i)
+-		if (a_req_i) begin
+-			if (a_write_i)
+-				storage[a_addr_i] <= a_wdata_i;
+-			a_rdata_o <= storage[a_addr_i];
+-		end
+-	always @(posedge clk_b_i)
+-		if (b_req_i) begin
+-			if (b_write_i)
+-				storage[b_addr_i] <= b_wdata_i;
+-			b_rdata_o <= storage[b_addr_i];
+-		end
+-endmodule
++// module prim_xilinx_ram_2p (
++// 	clk_a_i,
++// 	clk_b_i,
++// 	a_req_i,
++// 	a_write_i,
++// 	a_addr_i,
++// 	a_wdata_i,
++// 	a_rdata_o,
++// 	b_req_i,
++// 	b_write_i,
++// 	b_addr_i,
++// 	b_wdata_i,
++// 	b_rdata_o
++// );
++// 	parameter signed [31:0] Width = 32;
++// 	parameter signed [31:0] Depth = 128;
++// 	localparam signed [31:0] Aw = $clog2(Depth);
++// 	input clk_a_i;
++// 	input clk_b_i;
++// 	input a_req_i;
++// 	input a_write_i;
++// 	input [Aw - 1:0] a_addr_i;
++// 	input [Width - 1:0] a_wdata_i;
++// 	output reg [Width - 1:0] a_rdata_o;
++// 	input b_req_i;
++// 	input b_write_i;
++// 	input [Aw - 1:0] b_addr_i;
++// 	input [Width - 1:0] b_wdata_i;
++// 	output reg [Width - 1:0] b_rdata_o;
++// 	reg [Width - 1:0] storage [0:Depth - 1];
++// 	always @(posedge clk_a_i)
++// 		if (a_req_i) begin
++// 			if (a_write_i)
++// 				storage[a_addr_i] <= a_wdata_i;
++// 			a_rdata_o <= storage[a_addr_i];
++// 		end
++// 	always @(posedge clk_b_i)
++// 		if (b_req_i) begin
++// 			if (b_write_i)
++// 				storage[b_addr_i] <= b_wdata_i;
++// 			b_rdata_o <= storage[b_addr_i];
++// 		end
++// endmodule
+ module prim_diff_decode (
+ 	clk_i,
+ 	rst_ni,
+@@ -16626,15 +16638,15 @@
+ 				.attr_i(attr_i)
+ 			);
+ 		end
+-		else if (Impl == ImplXilinx) begin : gen_pad_xilinx
+-			prim_xilinx_pad_wrapper #(.AttrDw(AttrDw)) i_pad_wrapper(
+-				.inout_io(inout_io),
+-				.in_o(in_o),
+-				.out_i(out_i),
+-				.oe_i(oe_i),
+-				.attr_i(attr_i)
+-			);
+-		end
++		// else if (Impl == ImplXilinx) begin : gen_pad_xilinx
++		// 	prim_xilinx_pad_wrapper #(.AttrDw(AttrDw)) i_pad_wrapper(
++		// 		.inout_io(inout_io),
++		// 		.in_o(in_o),
++		// 		.out_i(out_i),
++		// 		.oe_i(oe_i),
++		// 		.attr_i(attr_i)
++		// 	);
++		// end
+ 	endgenerate
+ endmodule
+ module prim_generic_pad_wrapper (
+@@ -16664,29 +16676,29 @@
+ 	assign oe = oe_i & ((od & ~out) | ~od);
+ 	assign inout_io = (oe ? out : 1'bz);
+ endmodule
+-module prim_xilinx_pad_wrapper (
+-	inout_io,
+-	in_o,
+-	out_i,
+-	oe_i,
+-	attr_i
+-);
+-	parameter [31:0] AttrDw = 2;
+-	inout wire inout_io;
+-	output wire in_o;
+-	input out_i;
+-	input oe_i;
+-	input [AttrDw - 1:0] attr_i;
+-	wire od;
+-	wire inv;
+-	assign {od, inv} = attr_i[1:0];
+-	assign in_o = inv ^ inout_io;
+-	wire oe;
+-	wire out;
+-	assign out = out_i ^ inv;
+-	assign oe = oe_i & ((od & ~out) | ~od);
+-	assign inout_io = (oe ? out : 1'bz);
+-endmodule
++// module prim_xilinx_pad_wrapper (
++// 	inout_io,
++// 	in_o,
++// 	out_i,
++// 	oe_i,
++// 	attr_i
++// );
++// 	parameter [31:0] AttrDw = 2;
++// 	inout wire inout_io;
++// 	output wire in_o;
++// 	input out_i;
++// 	input oe_i;
++// 	input [AttrDw - 1:0] attr_i;
++// 	wire od;
++// 	wire inv;
++// 	assign {od, inv} = attr_i[1:0];
++// 	assign in_o = inv ^ inout_io;
++// 	wire oe;
++// 	wire out;
++// 	assign out = out_i ^ inv;
++// 	assign oe = oe_i & ((od & ~out) | ~od);
++// 	assign inout_io = (oe ? out : 1'bz);
++// endmodule
+ module prim_clock_mux2 (
+ 	clk0_i,
+ 	clk1_i,
+@@ -16710,14 +16722,14 @@
+ 				.clk_o(clk_o)
+ 			);
+ 		end
+-		else if (Impl == ImplXilinx) begin : gen_xilinx
+-			prim_xilinx_clock_mux2 u_impl_xilinx(
+-				.clk0_i(clk0_i),
+-				.clk1_i(clk1_i),
+-				.sel_i(sel_i),
+-				.clk_o(clk_o)
+-			);
+-		end
++		// else if (Impl == ImplXilinx) begin : gen_xilinx
++		// 	prim_xilinx_clock_mux2 u_impl_xilinx(
++		// 		.clk0_i(clk0_i),
++		// 		.clk1_i(clk1_i),
++		// 		.sel_i(sel_i),
++		// 		.clk_o(clk_o)
++		// 	);
++		// end
+ 	endgenerate
+ endmodule
+ module prim_generic_clock_mux2 (
+@@ -16732,23 +16744,23 @@
+ 	output wire clk_o;
+ 	assign clk_o = (sel_i ? clk1_i : clk0_i);
+ endmodule
+-module prim_xilinx_clock_mux2 (
+-	clk0_i,
+-	clk1_i,
+-	sel_i,
+-	clk_o
+-);
+-	input clk0_i;
+-	input clk1_i;
+-	input sel_i;
+-	output wire clk_o;
+-	BUFGMUX bufgmux_i(
+-		.S(sel_i),
+-		.I0(clk0_i),
+-		.I1(clk1_i),
+-		.O(clk_o)
+-	);
+-endmodule
++// module prim_xilinx_clock_mux2 (
++// 	clk0_i,
++// 	clk1_i,
++// 	sel_i,
++// 	clk_o
++// );
++// 	input clk0_i;
++// 	input clk1_i;
++// 	input sel_i;
++// 	output wire clk_o;
++// 	BUFGMUX bufgmux_i(
++// 		.S(sel_i),
++// 		.I0(clk0_i),
++// 		.I1(clk1_i),
++// 		.O(clk_o)
++// 	);
++// endmodule
+ module tlul_err_resp (
+ 	clk_i,
+ 	rst_ni,
+@@ -33735,6 +33747,8 @@
+ 		sv2v_struct_6856F = {hmac_en, sha_en, endian_swap, digest_swap};
+ 	endfunction
+ endmodule
++
++(* blackbox *)
+ module prim_ram_1p (
+ 	clk_i,
+ 	rst_ni,
+@@ -33783,6 +33797,8 @@
+ 		end
+ 	endgenerate
+ endmodule
++
++(* blackbox *)
+ module prim_generic_ram_1p (
+ 	clk_i,
+ 	rst_ni,
+@@ -33833,6 +33849,8 @@
+ 		else
+ 			rvalid_o <= req_i & ~write_i;
+ endmodule
++
++(* blackbox *)
+ module prim_rom (
+ 	clk_i,
+ 	rst_ni,
+@@ -33868,20 +33886,22 @@
+ 				.dvalid_o(dvalid_o)
+ 			);
+ 		end
+-		else if (Impl == ImplXilinx) begin : gen_rom_xilinx
+-			prim_xilinx_rom #(
+-				.Width(Width),
+-				.Depth(Depth)
+-			) u_impl_generic(
+-				.clk_i(clk_i),
+-				.addr_i(addr_i),
+-				.cs_i(cs_i),
+-				.dout_o(dout_o),
+-				.dvalid_o(dvalid_o)
+-			);
+-		end
++		// else if (Impl == ImplXilinx) begin : gen_rom_xilinx
++		// 	prim_xilinx_rom #(
++		// 		.Width(Width),
++		// 		.Depth(Depth)
++		// 	) u_impl_generic(
++		// 		.clk_i(clk_i),
++		// 		.addr_i(addr_i),
++		// 		.cs_i(cs_i),
++		// 		.dout_o(dout_o),
++		// 		.dvalid_o(dvalid_o)
++		// 	);
++		// end
+ 	endgenerate
+ endmodule
++
++(* blackbox *)
+ module prim_generic_rom (
+ 	clk_i,
+ 	rst_ni,
+@@ -33914,32 +33934,34 @@
+ 		$readmemh(MEM_FILE, mem);
+ 	end
+ endmodule
+-module prim_xilinx_rom (
+-	clk_i,
+-	addr_i,
+-	cs_i,
+-	dout_o,
+-	dvalid_o
+-);
+-	parameter signed [31:0] Width = 32;
+-	parameter signed [31:0] Depth = 2048;
+-	parameter signed [31:0] Aw = $clog2(Depth);
+-	input clk_i;
+-	input [Aw - 1:0] addr_i;
+-	input cs_i;
+-	output reg [Width - 1:0] dout_o;
+-	output reg dvalid_o;
+-	reg [Width - 1:0] mem [0:Depth - 1];
+-	localparam MEM_FILE = "bootrom.mem";
+-	initial begin
+-		$display("Initializing ROM from %s", MEM_FILE);
+-		$readmemh(MEM_FILE, mem);
+-	end
+-	always @(posedge clk_i)
+-		if (cs_i)
+-			dout_o <= mem[addr_i];
+-	always @(posedge clk_i) dvalid_o <= cs_i;
+-endmodule
++// module prim_xilinx_rom (
++// 	clk_i,
++// 	addr_i,
++// 	cs_i,
++// 	dout_o,
++// 	dvalid_o
++// );
++// 	parameter signed [31:0] Width = 32;
++// 	parameter signed [31:0] Depth = 2048;
++// 	parameter signed [31:0] Aw = $clog2(Depth);
++// 	input clk_i;
++// 	input [Aw - 1:0] addr_i;
++// 	input cs_i;
++// 	output reg [Width - 1:0] dout_o;
++// 	output reg dvalid_o;
++// 	reg [Width - 1:0] mem [0:Depth - 1];
++// 	localparam MEM_FILE = "bootrom.mem";
++// 	initial begin
++// 		$display("Initializing ROM from %s", MEM_FILE);
++// 		$readmemh(MEM_FILE, mem);
++// 	end
++// 	always @(posedge clk_i)
++// 		if (cs_i)
++// 			dout_o <= mem[addr_i];
++// 	always @(posedge clk_i) dvalid_o <= cs_i;
++// endmodule
++
++(* blackbox *)
+ module prim_flash (
+ 	clk_i,
+ 	rst_ni,
+@@ -34017,6 +34039,8 @@
+ 		end
+ 	endgenerate
+ endmodule
++
++(* blackbox *)
+ module prim_generic_flash (
+ 	clk_i,
+ 	rst_ni,
+@@ -37197,6 +37221,8 @@
+ 		sv2v_cast_BA3C3 = inp;
+ 	endfunction
+ endmodule
++
++(* blackbox *)
+ module flash_mp (
+ 	clk_i,
+ 	rst_ni,
+@@ -37334,6 +37360,7 @@
+ 	assign erase_done_o = erase_done_i | txn_err;
+ 	assign error_o = txn_err;
+ endmodule
++
+ module flash_phy (
+ 	clk_i,
+ 	rst_ni,
