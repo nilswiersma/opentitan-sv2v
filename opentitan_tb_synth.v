@@ -11,7 +11,7 @@ top_earlgrey opentitan (
 );
 
 initial begin
-    forever #500 clk = !clk;
+    forever #10 clk = !clk;
 end
 
 initial begin
@@ -26,7 +26,7 @@ initial begin
     rst = 1'b0;
     #5;
     rst = 1'b1;
-    #20000
+    #10000
     $finish;
 end
 
