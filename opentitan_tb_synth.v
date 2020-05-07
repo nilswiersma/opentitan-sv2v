@@ -11,12 +11,12 @@ top_earlgrey opentitan (
 );
 
 initial begin
-    forever #1000 clk = !clk;
+    forever #500 clk = !clk;
 end
 
 initial begin
     // Set variables to be dumped to vcd file here
-    $dumpfile("opentitan.vcd");
+    $dumpfile("opentitan_synth.vcd");
     $dumpvars;
     // $dumpvars(0, opentitan_tb);
 
@@ -26,7 +26,7 @@ initial begin
     rst = 1'b0;
     #5;
     rst = 1'b1;
-    #50000
+    #20000
     $finish;
 end
 
